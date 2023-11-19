@@ -4,16 +4,9 @@ public partial class Player : CharacterBody2D
 {
 	#region Fields
 
-	#region Constants
+	#region References
 
-	private const float speed = 100;
-	private const float acceleration = 600;
-	private const float jumpVelocity = -300;
-
-	#endregion
-
-	#region Nodes
-
+	[Export] private PlayerMovementData movementData;
 	private AnimatedSprite2D animatedSprite2D;
 	private Timer coyoteJumpTimer;
 
@@ -41,11 +34,11 @@ public partial class Player : CharacterBody2D
 	{
 		var velocity = Velocity;
 		var direction = Input.GetAxis("ui_left", "ui_right");
-		var movingTowards = direction != 0 ? direction * speed : 0f;
+		var movingTowards = direction != 0 ? direction * movementData.Speed : 0f;
 
 		ApplyGravityAndJumping(ref velocity, delta);
 
-		velocity.X = Mathf.MoveToward(Velocity.X, movingTowards, acceleration * (float)delta);
+		velocity.X = Mathf.MoveToward(Velocity.X, movingTowards, movementData.Acceleration * (float)delta);
 		Velocity = velocity;
 
 		UpdateAnimations(direction);
@@ -67,7 +60,7 @@ public partial class Player : CharacterBody2D
 			canDoubleJump = true;
 			if (Input.IsActionJustPressed("ui_up"))
 			{
-				velocity.Y = jumpVelocity;
+				velocity.Y = movementData.JumpVelocity;
 			}
 		}
 
@@ -75,7 +68,7 @@ public partial class Player : CharacterBody2D
 		{
 			if (Input.IsActionJustPressed("ui_up") && canDoubleJump)
 			{
-				velocity.Y = jumpVelocity * 0.75f;
+				velocity.Y = movementData.JumpVelocity * 0.75f;
 				canDoubleJump = false;
 			}
 
