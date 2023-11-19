@@ -15,6 +15,7 @@ public partial class Player : CharacterBody2D
 	#region Nodes
 
 	private AnimatedSprite2D animatedSprite2D;
+	private Timer coyoteJumpTimer;
 
 	#endregion
 
@@ -24,11 +25,14 @@ public partial class Player : CharacterBody2D
 
 	#endregion
 
+	#region Events
+
 	public override void _Ready()
 	{
 		base._Ready();
 
 		animatedSprite2D = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		coyoteJumpTimer = GetNode<Timer>("CoyoteJumpTimer");
 
 		canDoubleJump = true;
 	}
@@ -45,11 +49,28 @@ public partial class Player : CharacterBody2D
 		Velocity = velocity;
 
 		UpdateAnimations(direction);
+
+		var wasOnFloor = IsOnFloor();
+
 		MoveAndSlide();
+		StartCoyoteJumpTimer(wasOnFloor, velocity);
 	}
+
+	#endregion
+
+	#region Methods
 
 	private void ApplyGravityAndJumping(ref Vector2 velocity, double delta)
 	{
+		if (IsOnFloor() || coyoteJumpTimer.TimeLeft > 0)
+		{
+			canDoubleJump = true;
+			if (Input.IsActionJustPressed("ui_up"))
+			{
+				velocity.Y = jumpVelocity;
+			}
+		}
+
 		if (!IsOnFloor())
 		{
 			if (Input.IsActionJustPressed("ui_up") && canDoubleJump)
@@ -59,13 +80,6 @@ public partial class Player : CharacterBody2D
 			}
 
 			velocity.Y += gravity * (float)delta;
-			return;
-		}
-
-		canDoubleJump = true;
-		if (Input.IsActionJustPressed("ui_up"))
-		{
-			velocity.Y = jumpVelocity;
 		}
 	}
 
@@ -87,4 +101,12 @@ public partial class Player : CharacterBody2D
 
 		animatedSprite2D.Play("Idle");
 	}
+
+	private void StartCoyoteJumpTimer(bool wasOnFloor, Vector2 velocity)
+	{
+		var justLeftLedge = wasOnFloor && !IsOnFloor() && velocity.Y >= 0;
+		if (justLeftLedge) coyoteJumpTimer.Start();
+	}
+
+	#endregion
 }
