@@ -10,9 +10,11 @@ public partial class Player : CharacterBody2D
 	[Export] private PlayerMovementData movementData;
 	private AnimatedSprite2D animatedSprite2D;
 	private Timer coyoteJumpTimer;
+	private Area2D hazardDetector;
 
 	#endregion
 
+	private Vector2 spawnPosition;
 	private bool canDoubleJump;
 
 	private float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -28,6 +30,10 @@ public partial class Player : CharacterBody2D
 		animatedSprite2D = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		coyoteJumpTimer = GetNode<Timer>("CoyoteJumpTimer");
 
+		hazardDetector = GetNode<Area2D>("HazardDetector");
+		hazardDetector.AreaEntered += (Area2D area) => HitHazard(area);
+
+		spawnPosition = GlobalPosition;
 		canDoubleJump = true;
 	}
 
@@ -125,6 +131,12 @@ public partial class Player : CharacterBody2D
 	{
 		var justLeftLedge = wasOnFloor && !IsOnFloor() && velocity.Y >= 0;
 		if (justLeftLedge) coyoteJumpTimer.Start();
+	}
+
+	private void HitHazard(Area2D hazard)
+	{
+		GlobalPosition = spawnPosition;
+		Velocity = Vector2.Zero;
 	}
 
 	#endregion
