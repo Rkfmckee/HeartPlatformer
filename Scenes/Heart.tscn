@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://qcgvennj6hf2"]
+
+[ext_resource type="Texture2D" uid="uid://c6mp5u5te6ja7" path="res://Sprites/Heart.png" id="1_e52se"]
+[ext_resource type="Script" path="res://Scripts/Heart.cs" id="1_mkmpw"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_js3po"]
+radius = 5.09902
+
+[node name="Heart" type="Area2D" groups=["Hearts"]]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_mkmpw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_e52se")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_js3po")

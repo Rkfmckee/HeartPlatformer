@@ -15,6 +15,10 @@ run/main_scene="res://Scenes/World.tscn"
 config/features=PackedStringArray("4.1", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Events="*res://Scripts/Events.cs"
+
 [display]
 
 window/size/viewport_width=320

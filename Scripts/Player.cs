@@ -3,8 +3,6 @@ using Godot;
 
 public partial class Player : CharacterBody2D
 {
-	#region Fields
-
 	#region References
 
 	[Export] private PlayerMovementData movementData;
@@ -13,6 +11,8 @@ public partial class Player : CharacterBody2D
 	private Area2D hazardDetector;
 
 	#endregion
+
+	#region Fields
 
 	private Vector2 spawnPosition;
 	private bool canDoubleJump;

@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://gaqvumc3sy8k"]
+
+[ext_resource type="Texture2D" uid="uid://c6mp5u5te6ja7" path="res://Sprites/Heart.png" id="1_5lba1"]
+
+[node name="HeartCounter" type="BoxContainer"]
+offset_right = 65.0
+offset_bottom = 26.0
+
+[node name="HeartImage" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("1_5lba1")
+expand_mode = 2
+
+[node name="CurrentHearts" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "0"
+
+[node name="Slash" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "/"
+
+[node name="TotalHearts" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "0"
