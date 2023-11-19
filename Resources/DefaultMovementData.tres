@@ -5,5 +5,6 @@
 [resource]
 script = ExtResource("1_0jmla")
 Speed = 100.0
-Acceleration = 600.0
+GroundAcceleration = 800.0
+AirAcceleration = 200.0
 JumpVelocity = -300.0

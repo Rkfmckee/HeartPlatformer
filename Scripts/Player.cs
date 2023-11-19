@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Godot;
 
 public partial class Player : CharacterBody2D
@@ -34,18 +35,16 @@ public partial class Player : CharacterBody2D
 	{
 		var velocity = Velocity;
 		var direction = Input.GetAxis("ui_left", "ui_right");
-		var movingTowards = direction != 0 ? direction * movementData.Speed : 0f;
 
+		HandleMovement(ref velocity, direction, delta);
 		ApplyGravityAndJumping(ref velocity, delta);
-
-		velocity.X = Mathf.MoveToward(Velocity.X, movingTowards, movementData.Acceleration * (float)delta);
-		Velocity = velocity;
-
-		UpdateAnimations(direction);
+		UpdateAnimations(velocity);
 
 		var wasOnFloor = IsOnFloor();
 
+		Velocity = velocity;
 		MoveAndSlide();
+
 		StartCoyoteJumpTimer(wasOnFloor, velocity);
 	}
 
@@ -58,6 +57,7 @@ public partial class Player : CharacterBody2D
 		if (IsOnFloor() || coyoteJumpTimer.TimeLeft > 0)
 		{
 			canDoubleJump = true;
+
 			if (Input.IsActionJustPressed("ui_up"))
 			{
 				velocity.Y = movementData.JumpVelocity;
@@ -66,7 +66,10 @@ public partial class Player : CharacterBody2D
 
 		if (!IsOnFloor())
 		{
-			if (Input.IsActionJustPressed("ui_up") && canDoubleJump)
+			var hasWallJumped = HandleWallJumping(ref velocity);
+			var shouldDoubleJump = Input.IsActionJustPressed("ui_up") && canDoubleJump && !hasWallJumped;
+
+			if (shouldDoubleJump)
 			{
 				velocity.Y = movementData.JumpVelocity * 0.75f;
 				canDoubleJump = false;
@@ -76,9 +79,32 @@ public partial class Player : CharacterBody2D
 		}
 	}
 
-	private void UpdateAnimations(float direction)
+	private bool HandleWallJumping(ref Vector2 velocity)
 	{
-		animatedSprite2D.FlipH = direction < 0;
+		if (!IsOnWall()) return false;
+
+		if (Input.IsActionJustPressed("ui_up"))
+		{
+			var wallNormal = GetWallNormal();
+			velocity.X = wallNormal.X * movementData.Speed;
+			velocity.Y = movementData.JumpVelocity;
+			return true;
+		}
+
+		return false;
+	}
+
+	private void HandleMovement(ref Vector2 velocity, float direction, double delta)
+	{
+		var movingTowards = direction != 0 ? direction * movementData.Speed : 0f;
+		var acceleration = IsOnFloor() ? movementData.GroundAcceleration : movementData.AirAcceleration;
+
+		velocity.X = Mathf.MoveToward(Velocity.X, movingTowards, acceleration * (float)delta);
+	}
+
+	private void UpdateAnimations(Vector2 velocity)
+	{
+		animatedSprite2D.FlipH = velocity.X < 0;
 
 		if (!IsOnFloor())
 		{
@@ -86,7 +112,7 @@ public partial class Player : CharacterBody2D
 			return;
 		}
 
-		if (direction != 0)
+		if (velocity.X != 0)
 		{
 			animatedSprite2D.Play("Run");
 			return;
