@@ -4,9 +4,13 @@ public partial class World : Node2D
 {
 	#region References
 
+	[Export]
+	private PackedScene nextLevel;
+
 	private Events events;
-	private ColorRect levelCompletedScreen;
 	private Label currentHearts;
+	private ColorRect levelCompletedScreen;
+	private LevelTransition levelTransition;
 
 	#endregion
 
@@ -26,6 +30,7 @@ public partial class World : Node2D
 		events.HeartCollected += HeartCollected;
 
 		levelCompletedScreen = GetNode<ColorRect>("CanvasLayer/LevelCompleted");
+		levelTransition = GetNode<LevelTransition>("/root/LevelTransition");
 
 		var heartCounter = GetNode<BoxContainer>("CanvasLayer/HeartCounter");
 		var totalHearts = heartCounter.GetNode<Label>("TotalHearts");
@@ -39,7 +44,7 @@ public partial class World : Node2D
 
 	#region Methods
 
-	private void HeartCollected()
+	private async void HeartCollected()
 	{
 		var heartsRemaining = GetTree().GetNodesInGroup("Hearts").Count - 1;
 		heartsCollected++;
@@ -49,6 +54,15 @@ public partial class World : Node2D
 		{
 			levelCompletedScreen.Show();
 			GetTree().Paused = true;
+
+			if (!nextLevel.IsValid()) return;
+
+			await levelTransition.FadeToBlack();
+
+			GetTree().Paused = false;
+			GetTree().ChangeSceneToPacked(nextLevel);
+
+			await levelTransition.FadeFromBlack();
 		}
 	}
 
