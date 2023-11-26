@@ -32,6 +32,12 @@ window/stretch/mode="canvas_items"
 
 project/assembly_name="Heartbeast - Heart Platformer"
 
+[gui]
+
+theme/custom="res://Resources/DefaultTheme.tres"
+theme/custom_font="res://Fonts/pixel_font.ttf"
+theme/default_font_subpixel_positioning=0
+
 [input]
 
 ui_accept={

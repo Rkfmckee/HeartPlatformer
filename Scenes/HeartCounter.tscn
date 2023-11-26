@@ -3,13 +3,12 @@
 [ext_resource type="Texture2D" uid="uid://c6mp5u5te6ja7" path="res://Sprites/Heart.png" id="1_5lba1"]
 
 [node name="HeartCounter" type="BoxContainer"]
-offset_right = 65.0
-offset_bottom = 26.0
+offset_right = 42.0
+offset_bottom = 16.0
 
 [node name="HeartImage" type="TextureRect" parent="."]
 layout_mode = 2
 texture = ExtResource("1_5lba1")
-expand_mode = 2
 
 [node name="CurrentHearts" type="Label" parent="."]
 layout_mode = 2

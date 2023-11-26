@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Godot;
 
 public partial class World : Node2D
@@ -24,8 +25,6 @@ public partial class World : Node2D
 
 	public override void _Ready()
 	{
-		RenderingServer.SetDefaultClearColor(new Color(0, 0, 0));
-
 		events = GetNode<Events>("/root/Events");
 		events.HeartCollected += HeartCollected;
 
@@ -54,6 +53,7 @@ public partial class World : Node2D
 		{
 			levelCompletedScreen.Show();
 			GetTree().Paused = true;
+			await WaitForSeconds(1);
 
 			if (!nextLevel.IsValid()) return;
 
@@ -64,6 +64,12 @@ public partial class World : Node2D
 
 			await levelTransition.FadeFromBlack();
 		}
+	}
+
+	private async Task WaitForSeconds(float seconds)
+	{
+		var timer = GetTree().CreateTimer(seconds);
+		await ToSignal(timer, Timer.SignalName.Timeout);
 	}
 
 	#endregion

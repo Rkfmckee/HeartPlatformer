@@ -23,7 +23,7 @@ offset_bottom = -122.0
 [node name="HeartCounter" parent="CanvasLayer" instance=ExtResource("6_k72de")]
 offset_left = -160.0
 offset_top = -122.0
-offset_right = -95.0
-offset_bottom = -96.0
+offset_right = -118.0
+offset_bottom = -106.0
 
 [node name="LevelTileMap" parent="." instance=ExtResource("7_gbtvn")]

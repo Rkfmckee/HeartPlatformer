@@ -16,15 +16,16 @@ public partial class StartMenu : CenterContainer
 	{
 		base._Ready();
 
+		RenderingServer.SetDefaultClearColor(new Color(0, 0, 0));
+
 		startButton = GetNode<Button>("%StartGameButton");
 		startButton.Pressed += () => StartButtonPressed();
+		startButton.GrabFocus();
 
 		quitButton = GetNode<Button>("%QuitButton");
 		quitButton.Pressed += () => QuitButtonPressed();
 
 		levelTransition = GetNode<LevelTransition>("/root/LevelTransition");
-
-		startButton.GrabFocus();
 	}
 
 	#endregion
