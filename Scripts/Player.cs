@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Godot;
 
 public partial class Player : CharacterBody2D
@@ -8,6 +7,7 @@ public partial class Player : CharacterBody2D
 	[Export] private PlayerMovementData movementData;
 	private AnimatedSprite2D animatedSprite2D;
 	private Timer coyoteJumpTimer;
+	private Timer wallJumpTimer;
 	private Area2D hazardDetector;
 
 	#endregion
@@ -16,6 +16,7 @@ public partial class Player : CharacterBody2D
 
 	private Vector2 spawnPosition;
 	private bool canDoubleJump;
+	private Vector2 mostRecentWallNormal;
 
 	private float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 
@@ -29,12 +30,14 @@ public partial class Player : CharacterBody2D
 
 		animatedSprite2D = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		coyoteJumpTimer = GetNode<Timer>("CoyoteJumpTimer");
+		wallJumpTimer = GetNode<Timer>("WallJumpTimer");
 
 		hazardDetector = GetNode<Area2D>("HazardDetector");
 		hazardDetector.AreaEntered += (Area2D area) => HitHazard(area);
 
 		spawnPosition = GlobalPosition;
 		canDoubleJump = true;
+		mostRecentWallNormal = Vector2.Zero;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -47,11 +50,12 @@ public partial class Player : CharacterBody2D
 		UpdateAnimations(velocity);
 
 		var wasOnFloor = IsOnFloor();
+		var wasOnWall = IsOnWallOnly();
 
 		Velocity = velocity;
 		MoveAndSlide();
 
-		StartCoyoteJumpTimer(wasOnFloor, velocity);
+		StartJumpTimers(wasOnFloor, wasOnWall, velocity);
 	}
 
 	#endregion
@@ -87,12 +91,15 @@ public partial class Player : CharacterBody2D
 
 	private bool HandleWallJumping(ref Vector2 velocity)
 	{
-		if (!IsOnWall()) return false;
+		if (!IsOnWallOnly() && wallJumpTimer.TimeLeft <= 0) return false;
+
+		// Always store the normal of the most recent wall touched,
+		// in case we wall jumped using the wallJumpTimer
+		if (IsOnWallOnly()) mostRecentWallNormal = GetWallNormal();
 
 		if (Input.IsActionJustPressed("ui_up"))
 		{
-			var wallNormal = GetWallNormal();
-			velocity.X = wallNormal.X * movementData.Speed;
+			velocity.X = mostRecentWallNormal.X * movementData.Speed;
 			velocity.Y = movementData.JumpVelocity;
 			return true;
 		}
@@ -127,10 +134,13 @@ public partial class Player : CharacterBody2D
 		animatedSprite2D.Play("Idle");
 	}
 
-	private void StartCoyoteJumpTimer(bool wasOnFloor, Vector2 velocity)
+	private void StartJumpTimers(bool wasOnFloor, bool wasOnWall, Vector2 velocity)
 	{
 		var justLeftLedge = wasOnFloor && !IsOnFloor() && velocity.Y >= 0;
 		if (justLeftLedge) coyoteJumpTimer.Start();
+
+		var justLeftWall = wasOnWall && !IsOnWall();
+		if (justLeftWall) wallJumpTimer.Start();
 	}
 
 	private void HitHazard(Area2D hazard)
