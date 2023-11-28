@@ -9,7 +9,7 @@
 nextLevel = ExtResource("2_k0i7q")
 
 [node name="Player" parent="." index="0"]
-position = Vector2(-120, -48)
+position = Vector2(-120, -16)
 
 [node name="LevelCompleted" parent="CanvasLayer" index="0"]
 offset_left = 0.0

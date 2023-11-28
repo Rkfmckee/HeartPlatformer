@@ -47,7 +47,6 @@ public partial class Player : CharacterBody2D
 
 		HandleMovement(ref velocity, direction, delta);
 		ApplyGravityAndJumping(ref velocity, delta);
-		UpdateAnimations(velocity);
 
 		var wasOnFloor = IsOnFloor();
 		var wasOnWall = IsOnWallOnly();
@@ -56,6 +55,7 @@ public partial class Player : CharacterBody2D
 		MoveAndSlide();
 
 		StartJumpTimers(wasOnFloor, wasOnWall, velocity);
+		UpdateAnimations(velocity);
 	}
 
 	#endregion

@@ -28,10 +28,9 @@ public partial class LevelTransition : CanvasLayer
 		await ToSignal(animationPlayer, AnimationPlayer.SignalName.AnimationFinished);
 	}
 
-	public async Task FadeFromBlack()
+	public void FadeFromBlack()
 	{
 		animationPlayer.Play("FadeFromBlack");
-		await ToSignal(animationPlayer, AnimationPlayer.SignalName.AnimationFinished);
 	}
 
 	#endregion

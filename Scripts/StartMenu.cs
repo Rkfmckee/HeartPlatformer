@@ -36,7 +36,6 @@ public partial class StartMenu : CenterContainer
 	{
 		await levelTransition.FadeToBlack();
 		GetTree().ChangeSceneToFile("res://Scenes/Level1.tscn");
-		await levelTransition.FadeFromBlack();
 	}
 
 	private void QuitButtonPressed()

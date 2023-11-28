@@ -12,6 +12,7 @@ public partial class World : Node2D
 	private Label currentHearts;
 	private ColorRect levelCompletedScreen;
 	private LevelTransition levelTransition;
+	private AnimationPlayer countdownAnimationPlayer;
 
 	#endregion
 
@@ -31,17 +32,31 @@ public partial class World : Node2D
 		levelCompletedScreen = GetNode<ColorRect>("CanvasLayer/LevelCompleted");
 		levelTransition = GetNode<LevelTransition>("/root/LevelTransition");
 
+		countdownAnimationPlayer = GetNode<AnimationPlayer>("CountdownAnimationPlayer");
+
 		var heartCounter = GetNode<BoxContainer>("CanvasLayer/HeartCounter");
 		var totalHearts = heartCounter.GetNode<Label>("TotalHearts");
 		currentHearts = heartCounter.GetNode<Label>("CurrentHearts");
 		totalHearts.Text = GetTree().GetNodesInGroup("Hearts").Count.ToString();
 
 		heartsCollected = 0;
+		DoCountdown();
 	}
 
 	#endregion
 
 	#region Methods
+
+	private async void DoCountdown()
+	{
+		GetTree().Paused = true;
+		levelTransition.FadeFromBlack();
+
+		countdownAnimationPlayer.Play("CountDown");
+		await ToSignal(countdownAnimationPlayer, AnimationPlayer.SignalName.AnimationFinished);
+
+		GetTree().Paused = false;
+	}
 
 	private async void HeartCollected()
 	{
@@ -59,10 +74,7 @@ public partial class World : Node2D
 
 			await levelTransition.FadeToBlack();
 
-			GetTree().Paused = false;
 			GetTree().ChangeSceneToPacked(nextLevel);
-
-			await levelTransition.FadeFromBlack();
 		}
 	}
 
