@@ -71,21 +71,16 @@ _data = {
 script = ExtResource("1_ewpxl")
 
 [node name="Player" parent="." instance=ExtResource("2_t2mu6")]
+position = Vector2(160, 122)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="LevelCompleted" parent="CanvasLayer" instance=ExtResource("5_xwn8d")]
 visible = false
-offset_left = -160.0
-offset_top = -122.0
-offset_right = -160.0
-offset_bottom = -122.0
 
 [node name="HeartCounter" parent="CanvasLayer" instance=ExtResource("6_k72de")]
-offset_left = -160.0
-offset_top = -122.0
-offset_right = -118.0
-offset_bottom = -106.0
+offset_left = 272.0
+offset_right = 314.0
 
 [node name="StartIn" type="ColorRect" parent="CanvasLayer"]
 unique_name_in_owner = true
@@ -109,6 +104,17 @@ grow_vertical = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "Start in 3..."
+
+[node name="LevelTimerLabel" type="Label" parent="CanvasLayer"]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = -8.0
+offset_bottom = 9.0
+grow_horizontal = 2
+size_flags_horizontal = 8
 
 [node name="LevelTileMap" parent="." instance=ExtResource("7_gbtvn")]
 

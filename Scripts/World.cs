@@ -8,29 +8,39 @@ public partial class World : Node2D
 	[Export]
 	private PackedScene nextLevel;
 
+	private PackedScene currentLevel;
 	private Events events;
 	private Label currentHearts;
-	private ColorRect levelCompletedScreen;
+	private LevelCompleted levelCompleted;
 	private LevelTransition levelTransition;
 	private AnimationPlayer countdownAnimationPlayer;
+	private Label levelTimerLabel;
 
 	#endregion
 
 	#region Fields
 
 	private int heartsCollected;
+	private float startLevelTimeMsec;
 
 	#endregion
 
 	#region Events
 
-	public override void _Ready()
+	public override async void _Ready()
 	{
-		events = GetNode<Events>("/root/Events");
-		events.HeartCollected += HeartCollected;
+		currentLevel = GD.Load(SceneFilePath) as PackedScene;
 
-		levelCompletedScreen = GetNode<ColorRect>("CanvasLayer/LevelCompleted");
+		events = GetNode<Events>("/root/Events");
+		events.HeartCollected += () => HeartCollected();
+
 		levelTransition = GetNode<LevelTransition>("/root/LevelTransition");
+		levelTimerLabel = GetNode<Label>("%LevelTimerLabel");
+		levelTimerLabel.Text = "0.00";
+
+		levelCompleted = GetNode<LevelCompleted>("CanvasLayer/LevelCompleted");
+		levelCompleted.Retry += async () => await GoToLevel(currentLevel);
+		levelCompleted.NextLevel += async () => await GoToLevel(nextLevel);
 
 		countdownAnimationPlayer = GetNode<AnimationPlayer>("CountdownAnimationPlayer");
 
@@ -40,22 +50,13 @@ public partial class World : Node2D
 		totalHearts.Text = GetTree().GetNodesInGroup("Hearts").Count.ToString();
 
 		heartsCollected = 0;
-		DoCountdown();
+		await DoCountdown();
 	}
 
-	#endregion
-
-	#region Methods
-
-	private async void DoCountdown()
+	public override void _Process(double delta)
 	{
-		GetTree().Paused = true;
-		levelTransition.FadeFromBlack();
-
-		countdownAnimationPlayer.Play("CountDown");
-		await ToSignal(countdownAnimationPlayer, AnimationPlayer.SignalName.AnimationFinished);
-
-		GetTree().Paused = false;
+		var currentTimeSec = (Time.GetTicksMsec() - startLevelTimeMsec) / 1000;
+		levelTimerLabel.Text = currentTimeSec.ToString("0.00");
 	}
 
 	private async void HeartCollected()
@@ -66,16 +67,33 @@ public partial class World : Node2D
 
 		if (heartsRemaining <= 0)
 		{
-			levelCompletedScreen.Show();
 			GetTree().Paused = true;
-			await WaitForSeconds(1);
-
-			if (!nextLevel.IsValid()) return;
-
-			await levelTransition.FadeToBlack();
-
-			GetTree().ChangeSceneToPacked(nextLevel);
+			levelCompleted.ShowScreen();
 		}
+	}
+
+	#endregion
+
+	#region Methods
+
+	private async Task DoCountdown()
+	{
+		GetTree().Paused = true;
+		levelTransition.FadeFromBlack();
+
+		countdownAnimationPlayer.Play("CountDown");
+		await ToSignal(countdownAnimationPlayer, AnimationPlayer.SignalName.AnimationFinished);
+
+		GetTree().Paused = false;
+		startLevelTimeMsec = Time.GetTicksMsec();
+	}
+
+	private async Task GoToLevel(PackedScene level)
+	{
+		if (!level.IsValid()) return;
+
+		await levelTransition.FadeToBlack();
+		GetTree().ChangeSceneToPacked(level);
 	}
 
 	private async Task WaitForSeconds(float seconds)
