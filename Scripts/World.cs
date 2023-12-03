@@ -67,6 +67,13 @@ public partial class World : Node2D
 
 		if (heartsRemaining <= 0)
 		{
+			if (!nextLevel.IsValid())
+			{
+				var victoryScreen = GD.Load("res://Scenes/VictoryScreen.tscn") as PackedScene;
+				await GoToLevel(victoryScreen);
+				return;
+			}
+
 			GetTree().Paused = true;
 			levelCompleted.ShowScreen();
 		}
